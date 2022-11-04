@@ -78,7 +78,7 @@ def apply_cnx(tape: list, qubit_list: list) -> list:
 def classical_circuit_transform(circ: Circuit) -> Circuit:
     """transform function to define a pass to decompose classical boxes"""
     assert is_classical_predicate.verify(circ)
-    circ_prime = Circuit(circ.n_qubits)
+    circ_prime = circ.copy()
     DecomposeBoxes().apply(circ_prime)
     RemoveRedundancies().apply(circ_prime)
     if not ls_gateset_pred.verify(circ_prime):
