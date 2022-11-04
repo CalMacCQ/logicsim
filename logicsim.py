@@ -40,7 +40,7 @@ def apply_x(tape: list, qubit_list: list) -> list:
     return tape
 
 
-# gates should be applied to a list of qubits not just an index
+# gates could be applied to a list of qubits not just an index - Maybe cleaner
 def apply_cx(tape: list, qubit_list: list) -> list:
     """Apply a controlled not gate to an input state."""
     assert len(qubit_list) == 2
@@ -96,7 +96,6 @@ class LogicSim:
     """Simulator Class for classical logic circuits"""
 
     def __init__(self, n_qubits: int):
-        # Consider changing the qubits to an integer parameter
         self.qubits = n_qubits
         self.qstate = [0] * n_qubits
         self.qstate[0] = 1  # state initalised at |10...0>
