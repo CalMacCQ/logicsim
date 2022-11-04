@@ -19,23 +19,6 @@ def _flip(bit: int) -> int:
     assert bit in {0, 1}
     return int(not bit)
 
-
-def classical_circuit_transform(circ: Circuit) -> Circuit:
-    """transform function to define a pass to decompose classical boxes"""
-    assert is_classical_predicate.verify(circ)
-    circ_prime = Circuit(circ.n_qubits)
-    DecomposeBoxes().apply(circ_prime)
-    RemoveRedundancies().apply(circ_prime)
-    if not ls_gateset_pred.verify(circ_prime):
-        raise RuntimeError("unable to convert to classical gateset")
-    else:
-        return circ_prime
-
-
-prepare_classical_circuit = CustomPass(
-    classical_circuit_transform
-)  # pass to decompose boxes into classical gateset
-
 # This function should be unnecesary if I define the gates such that they act on qubit instead of the tape.
 def _qubit_list_to_index_list(qubit_list) -> list:
     """
@@ -91,6 +74,22 @@ def apply_cnx(tape: list, qubit_list: list) -> list:
     ):  # If all control bits are 1 flip the target
         tape[target_index] = _flip(tape[target_index])
     return tape
+
+def classical_circuit_transform(circ: Circuit) -> Circuit:
+    """transform function to define a pass to decompose classical boxes"""
+    assert is_classical_predicate.verify(circ)
+    circ_prime = Circuit(circ.n_qubits)
+    DecomposeBoxes().apply(circ_prime)
+    RemoveRedundancies().apply(circ_prime)
+    if not ls_gateset_pred.verify(circ_prime):
+        raise RuntimeError("unable to convert to classical gateset")
+    else:
+        return circ_prime
+
+
+prepare_classical_circuit = CustomPass(
+    classical_circuit_transform
+)  # pass to decompose boxes into classical gateset
 
 
 class LogicSim:
