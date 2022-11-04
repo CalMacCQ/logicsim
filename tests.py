@@ -4,7 +4,7 @@ from logicsim import (
     ls_gateset_pred,
     prepare_classical_circuit,
 )
-from pytket import Circuit, OpType, Qubit
+from pytket import Circuit, OpType
 from pytket.circuit import CircBox, ToffoliBox, QControlBox
 
 
@@ -87,14 +87,3 @@ def test_prepare_circuit_pass() -> None:
     my_circ.add_qcontrolbox(qcntrl, [0, 1, 2, 3])
     prepare_classical_circuit.apply(my_circ)
     assert ls_gateset_pred.verify(my_circ)
-
-
-test_x()
-test_cx()
-test_ccx()
-test_cnx()
-test_bigger_circuit()
-test_intger_con()
-test_LogicSim_class()
-test_prepare_circuit_pass()
-print("all tests pass")

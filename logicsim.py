@@ -58,8 +58,6 @@ def apply_x(tape: list, qubit_list: list) -> list:
 
 
 # gates should be applied to a list of qubits not just an index
-
-
 def apply_cx(tape: list, qubit_list: list) -> list:
     """Apply a controlled not gate to an input state."""
     assert len(qubit_list) == 2
@@ -78,7 +76,7 @@ def apply_ccx(tape: list, qubit_list: list) -> list:
     target_index = qubit_list[-1].index[0]
     if (
         tape[control_indices[0]] and tape[control_indices[0]] == 1
-    ):  # control indices confusion here
+    ):  
         tape[target_index] = _flip(tape[target_index])
     return tape
 
