@@ -1,11 +1,10 @@
-from logicsim import (
-    LogicSim,
-    is_classical_predicate,
-    ls_gateset_pred,
-    prepare_classical_circuit,
-)
 from pytket import Circuit, OpType
+from pytket.passes import DecomposeBoxes
 from pytket.circuit import CircBox, ToffoliBox, QControlBox
+from pytket.utils import compare_unitaries
+
+from logicsim import LogicSim
+from gateset import is_classical_predicate, ls_gateset_pred, prepare_classical_circuit
 
 
 def test_LogicSim_class() -> None:
@@ -76,14 +75,38 @@ def test_intger_con() -> None:
 
 
 def test_prepare_circuit_pass() -> None:
-    ls_comp = LogicSim(4)
     my_circ = Circuit(4)
     permutation = {(0, 0): (1, 1), (1, 1): (0, 0)}
     tb = ToffoliBox(n_qubits=2, permutation=permutation)
-    my_circ.add_toffolibox(tb, [0, 1])
-    sub_circ = Circuit(3).CX(0, 1).add_gate(OpType.CCX, [0, 1, 2])
+    # my_circ.add_toffolibox(tb, [0, 1])
+    sub_circ = Circuit(3)
+    sub_circ.CX(0, 1).add_gate(OpType.CCX, [0, 1, 2])
     cb = CircBox(sub_circ)
     qcntrl = QControlBox(cb, 1)
     my_circ.add_qcontrolbox(qcntrl, [0, 1, 2, 3])
+    unitary_before = my_circ.get_unitary()
     prepare_classical_circuit.apply(my_circ)
+    unitary_after = my_circ.get_unitary()
+    assert compare_unitaries(unitary_before, unitary_after)
     assert ls_gateset_pred.verify(my_circ)
+    ls_comp = LogicSim(4)
+    my_result = ls_comp.run_circuit(my_circ)
+    print(my_result)
+
+
+def test_suspicious_circuit() -> None:
+    manual_circ = Circuit(2).X(1).CX(1, 0).X(1).CX(0, 1).X(1).CX(1, 0).X(1)
+    mysim = LogicSim(2)
+    res = mysim.run_circuit(manual_circ)
+    # print(res)
+
+
+test_x()
+test_cx()
+test_ccx()
+test_cnx()
+test_bigger_circuit()
+test_intger_con()
+test_prepare_circuit_pass()
+test_suspicious_circuit()
+print("tests passed")
