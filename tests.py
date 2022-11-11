@@ -1,5 +1,4 @@
 from pytket import Circuit, OpType
-from pytket.passes import DecomposeBoxes
 from pytket.circuit import CircBox, ToffoliBox, QControlBox
 from pytket.utils import compare_unitaries
 
@@ -7,7 +6,7 @@ from logicsim import LogicSim
 from gateset import is_classical_predicate, ls_gateset_pred, prepare_classical_circuit
 
 
-def test_LogicSim_class() -> None:
+def test_class() -> None:
     my_ls = LogicSim(4)
     assert my_ls.qubits == 4
     assert my_ls.qstate == [0, 0, 0, 0]
@@ -17,7 +16,6 @@ def test_LogicSim_class() -> None:
     output = my_ls1.run_circuit(hcirc)
     print(output)
     assert output == [0, 1, 1, 0, 0]
-
 
 def test_x() -> None:
     ls1 = LogicSim(2)
@@ -55,7 +53,8 @@ def test_cnx() -> None:
 def test_bigger_circuit() -> None:
     ls6 = LogicSim(6)
     circ6 = (
-        Circuit(6).X(0)
+        Circuit(6)
+        .X(0)
         .X(1)
         .X(2)
         .add_gate(OpType.CnX, [0, 1, 2, 3])
@@ -63,6 +62,7 @@ def test_bigger_circuit() -> None:
         .add_gate(OpType.CCX, [2, 3, 4])
         .add_gate(OpType.CnX, [4, 3, 2, 1])
     )
+    assert ls_gateset_pred.verify(circ6)
     output6 = ls6.run_circuit(circ6)
     assert output6 == [1, 1, 1, 1, 1, 0]
 
@@ -84,6 +84,7 @@ def test_prepare_circuit_pass() -> None:
     cb = CircBox(sub_circ)
     qcntrl = QControlBox(cb, 1)
     my_circ.add_qcontrolbox(qcntrl, [0, 1, 2, 3])
+    assert is_classical_predicate.verify(my_circ)
     unitary_before = my_circ.get_unitary()
     prepare_classical_circuit.apply(my_circ)
     unitary_after = my_circ.get_unitary()
@@ -97,8 +98,9 @@ def test_suspicious_circuit() -> None:
     res = mysim.run_circuit(manual_circ)
     assert res == [1, 1]
 
+
 if __name__ == "__main__":
-    test_LogicSim_class()
+    test_class()
     test_x()
     test_cx()
     test_ccx()

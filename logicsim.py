@@ -1,4 +1,4 @@
-from pytket import Circuit, OpType, Qubit
+from pytket import Circuit, OpType
 
 from gateset import apply_x, apply_cx, apply_ccx, apply_cnx
 from gateset import ls_gateset_pred
@@ -9,7 +9,7 @@ class LogicSim:
 
     def __init__(self, n_qubits: int):
         self.qubits = n_qubits
-        self.qstate = [0] * n_qubits # state initalised at |00...0>
+        self.qstate = [0] * n_qubits  # state initalised at |00...0>
 
     def run_circuit(self, circ: Circuit) -> Circuit:
         """Processes a classical circuit and returns tape/ the ket for the quantum state"""
