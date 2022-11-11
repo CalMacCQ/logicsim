@@ -1,7 +1,7 @@
 from pytket import Circuit, OpType, Qubit
 
 from gateset import apply_x, apply_cx, apply_ccx, apply_cnx
-from gateset import ls_gateset_pred, prepare_classical_circuit
+from gateset import ls_gateset_pred
 
 
 class LogicSim:

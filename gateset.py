@@ -2,11 +2,9 @@ from pytket import Circuit, OpType, Qubit
 from pytket.predicates import GateSetPredicate
 from pytket.passes import RemoveRedundancies, DecomposeBoxes, CustomPass
 
-
 logicsim_gateset = {OpType.X, OpType.CX, OpType.CCX, OpType.CnX}
 ls_gateset_pred = GateSetPredicate(logicsim_gateset)
 classical_boxes = {
-    OpType.ClassicalExpBox,
     OpType.CircBox,
     OpType.ToffoliBox,
     OpType.QControlBox,
