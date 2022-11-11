@@ -10,7 +10,6 @@ class LogicSim:
     def __init__(self, n_qubits: int):
         self.qubits = n_qubits
         self.qstate = [0] * n_qubits # state initalised at |00...0>
-        self.hamming_weight = sum(self.qstate)
 
     def run_circuit(self, circ: Circuit) -> Circuit:
         """Processes a classical circuit and returns tape/ the ket for the quantum state"""
