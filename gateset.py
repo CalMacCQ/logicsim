@@ -82,7 +82,3 @@ prepare_classical_circuit = CustomPass(
 compilation_sequence = SequencePass(
     [DecomposeBoxes(), RemoveRedundancies(), prepare_classical_circuit]
 )
-
-
-my_circ = Circuit(2).X(0).add_gate(OpType.CnX, [0, 1])
-print(ls_gateset_pred.verify(my_circ))
