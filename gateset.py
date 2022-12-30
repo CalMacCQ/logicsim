@@ -5,7 +5,7 @@ from pytket.predicates import GateSetPredicate
 
 logicsim_gateset = {OpType.X, OpType.CnX}
 ls_gateset_pred = GateSetPredicate(logicsim_gateset)
-classical_boxes = {
+other_classical_ops = {
     OpType.CircBox,
     OpType.ToffoliBox,
     OpType.QControlBox,
@@ -14,7 +14,7 @@ classical_boxes = {
 }
 
 
-is_classical_predicate = GateSetPredicate(logicsim_gateset | classical_boxes)
+is_classical_predicate = GateSetPredicate(logicsim_gateset | other_classical_ops)
 
 
 def _flip(bit: int) -> int:
@@ -68,9 +68,8 @@ def compile_circuit_to_x_cnx(circ: Circuit) -> Circuit:
             circ_prime.add_gate(OpType.X, qubit_list)
         elif cmd.op.type == OpType.CX or OpType.CCX:
             circ_prime.add_gate(OpType.CnX, qubit_list)
-
-    if not ls_gateset_pred.verify(circ_prime):
-        raise RuntimeError("unable to convert to {X, CnX} gateset")
+        elif cmd.op.type not in logicsim_gateset:
+            raise RuntimeError(f"Unable to convert {cmd.op.type} to X, CnX gateset.")
 
     return circ_prime
 
