@@ -1,6 +1,7 @@
+"Gateset and circuit transformations for classical simulator"
 from pytket import Circuit, OpType, Qubit
+from pytket.passes import CustomPass, DecomposeBoxes, RemoveRedundancies
 from pytket.predicates import GateSetPredicate
-from pytket.passes import RemoveRedundancies, DecomposeBoxes, CustomPass
 
 logicsim_gateset = {OpType.X, OpType.CX, OpType.CCX, OpType.CnX}
 ls_gateset_pred = GateSetPredicate(logicsim_gateset)
@@ -9,6 +10,8 @@ classical_boxes = {
     OpType.ToffoliBox,
     OpType.QControlBox,
 }
+
+
 is_classical_predicate = GateSetPredicate(logicsim_gateset | classical_boxes)
 
 
@@ -39,25 +42,6 @@ def apply_x(tape: list, qubit_list: list) -> list:
 
 
 # gates could be applied to a list of qubits not just an index - Maybe cleaner
-def apply_cx(tape: list, qubit_list: list) -> list:
-    """Apply a controlled not gate to an input state."""
-    assert len(qubit_list) == 2
-    control_index = qubit_list[0].index[0]
-    target_index = qubit_list[1].index[0]
-    if tape[control_index] == 1:
-        tape[target_index] = _flip(tape[target_index])
-
-    return tape
-
-
-def apply_ccx(tape: list, qubit_list: list) -> list:
-    """Apply a Toffoli gate to an input state"""
-    control_indices = _qubit_list_to_index_list(qubit_list[:2])
-    assert len(control_indices) == 2  # control indices
-    target_index = qubit_list[-1].index[0]
-    if tape[control_indices[0]] and tape[control_indices[0]] == 1:
-        tape[target_index] = _flip(tape[target_index])
-    return tape
 
 
 def apply_cnx(tape: list, qubit_list: list) -> list:
@@ -80,6 +64,12 @@ def classical_circuit_transform(circ: Circuit) -> Circuit:
     RemoveRedundancies().apply(circ_prime)
     if not ls_gateset_pred.verify(circ_prime):
         raise RuntimeError("unable to convert to classical gateset")
+
+    for cmd in circ.get_commands():
+        qubit_list = cmd.qubits
+        if cmd.op.type == OpType.CX or OpType.CCX:
+            circ_prime.add_gate(OpType.CnX, qubit_list)
+
     return circ_prime
 
 
