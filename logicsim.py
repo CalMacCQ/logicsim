@@ -1,6 +1,7 @@
+"simulator class for classical logic circuits"
 from pytket import Circuit, OpType
 
-from gateset import apply_cnx, apply_x, ls_gateset_pred, prepare_classical_circuit
+from gateset import apply_cnx, apply_x, ls_gateset_pred, compilation_sequence
 
 
 class LogicSim:
@@ -13,7 +14,7 @@ class LogicSim:
     def compile_classical_circuit(self, circ: Circuit) -> Circuit:
         "Decomposes boxes and converts gateset to {x, CnX}."
         circ_prime = circ.copy()
-        prepare_classical_circuit.apply(circ_prime)
+        compilation_sequence.apply(circ_prime)
         return circ_prime
 
     def run_circuit(self, circ: Circuit) -> list[int]:

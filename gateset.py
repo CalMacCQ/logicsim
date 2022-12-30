@@ -1,14 +1,16 @@
 "Gateset and circuit transformations for classical simulator"
 from pytket import Circuit, OpType, Qubit
-from pytket.passes import CustomPass, DecomposeBoxes, RemoveRedundancies
+from pytket.passes import CustomPass, DecomposeBoxes, RemoveRedundancies, SequencePass
 from pytket.predicates import GateSetPredicate
 
-logicsim_gateset = {OpType.X, OpType.CX, OpType.CCX, OpType.CnX}
+logicsim_gateset = {OpType.X, OpType.CnX}
 ls_gateset_pred = GateSetPredicate(logicsim_gateset)
 classical_boxes = {
     OpType.CircBox,
     OpType.ToffoliBox,
     OpType.QControlBox,
+    OpType.CX,
+    OpType.CCX,
 }
 
 
@@ -56,23 +58,31 @@ def apply_cnx(tape: list, qubit_list: list) -> list:
     return tape
 
 
-def classical_circuit_transform(circ: Circuit) -> Circuit:
-    """transform function to define a pass to decompose classical boxes"""
+def compile_circuit_to_x_cnx(circ: Circuit) -> Circuit:
+    "converts a classical Circuit (without boxes) to the {X, CnX} gateset."
     assert is_classical_predicate.verify(circ)
-    circ_prime = circ.copy()
-    DecomposeBoxes().apply(circ_prime)
-    RemoveRedundancies().apply(circ_prime)
-    if not ls_gateset_pred.verify(circ_prime):
-        raise RuntimeError("unable to convert to classical gateset")
-
+    circ_prime = Circuit(circ.n_qubits)
     for cmd in circ.get_commands():
         qubit_list = cmd.qubits
-        if cmd.op.type == OpType.CX or OpType.CCX:
+        if cmd.op.type == OpType.X:
+            circ_prime.add_gate(OpType.X, qubit_list)
+        elif cmd.op.type == OpType.CX or OpType.CCX:
             circ_prime.add_gate(OpType.CnX, qubit_list)
+
+    if not ls_gateset_pred.verify(circ_prime):
+        raise RuntimeError("unable to convert to {X, CnX} gateset")
 
     return circ_prime
 
 
 prepare_classical_circuit = CustomPass(
-    classical_circuit_transform
+    compile_circuit_to_x_cnx
 )  # pass to decompose boxes into classical gateset
+
+compilation_sequence = SequencePass(
+    [DecomposeBoxes(), RemoveRedundancies(), prepare_classical_circuit]
+)
+
+
+my_circ = Circuit(2).X(0).add_gate(OpType.CnX, [0, 1])
+print(ls_gateset_pred.verify(my_circ))
