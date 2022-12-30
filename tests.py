@@ -84,6 +84,7 @@ def test_compilation_pass() -> None:
     my_circ = Circuit(4)
     permutation = {(0, 0): (1, 1), (1, 1): (0, 0)}
     tb = ToffoliBox(n_qubits=2, permutation=permutation)
+    my_circ.add_toffolibox(tb, [1, 2])
     sub_circ = Circuit(3)
     sub_circ.CX(0, 1).add_gate(OpType.CCX, [0, 1, 2])
     cb = CircBox(sub_circ)
@@ -97,8 +98,11 @@ def test_compilation_pass() -> None:
     assert ls_gateset_pred.verify(my_circ)
 
 
-def test_suspicious_circuit() -> None:
-    manual_circ = Circuit(2).X(1).CX(1, 0).X(1).CX(0, 1).X(1).CX(1, 0).X(1)
+def test_toffolibox_circuit() -> None:
+    manual_circ = Circuit(2)
+    permutation = {(0, 0): (1, 1), (1, 1): (0, 0)}
+    tb = ToffoliBox(n_qubits=2, permutation=permutation)
+    manual_circ.add_toffolibox(tb, [0, 1])
     mysim = LogicSim(2)
     c_manual_circ = mysim.compile_classical_circuit(manual_circ)
     res = mysim.run_circuit(c_manual_circ)
@@ -114,5 +118,5 @@ if __name__ == "__main__":
     test_bigger_circuit()
     another_test_circuit()
     test_compilation_pass()
-    test_suspicious_circuit()
+    test_toffolibox_circuit()
     print("tests passed")
